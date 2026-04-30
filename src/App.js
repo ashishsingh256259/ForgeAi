@@ -482,7 +482,7 @@ function App() {
   );
 }
 
-export default App;
+
 // ─── COMPONENTS ─────────────────────────────────────────────────────────────
 
 function TypingIndicator() {
