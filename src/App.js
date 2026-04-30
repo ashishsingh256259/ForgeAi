@@ -443,7 +443,7 @@ const SURVEY_QUESTIONS_BY_FIELD = {
 
 // ─── AI CHAT BOT ────────────────────────────────────────────────────────────
 
-import { useEffect } from "react";
+
 
 const messages = [
   { role: "user", content: "Hello" }
