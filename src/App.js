@@ -442,7 +442,33 @@ const SURVEY_QUESTIONS_BY_FIELD = {
 };
 
 // ─── AI CHAT BOT ────────────────────────────────────────────────────────────
+const [githubUser, setGithubUser] = useState("");
+const [githubData, setGithubData] = useState(null);
+async function fetchGithub() {
+  if (!githubUser) return;
 
+  try {
+    const res = await fetch(`https://api.github.com/users/${githubUser}`);
+    const data = await res.json();
+
+    setGithubData(data);
+
+    // optional: chat में भी दिखा
+    setMessages(prev => [
+      ...prev,
+      {
+        role: "assistant",
+        content: `👤 ${data.name || data.login}
+📦 Repos: ${data.public_repos}
+👥 Followers: ${data.followers}
+⭐ Bio: ${data.bio || "N/A"}`
+      }
+    ]);
+
+  } catch (err) {
+    console.error(err);
+  }
+}
 async function askClaude(messages, systemPrompt) {
   const res = await fetch("https://forgeai-a8xi.onrender.com/api/chat", {
     method: "POST",
@@ -929,3 +955,15 @@ export default function ForgeApp() {
     </div>
   );
 }
+{/* GITHUB FEATURE */}
+<div style={{ marginTop: 20 }}>
+  <input
+    placeholder="Enter GitHub username"
+    value={githubUser}
+    onChange={(e) => setGithubUser(e.target.value)}
+  />
+
+  <button onClick={fetchGithub}>
+    Get GitHub Info
+  </button>
+</div>
