@@ -443,13 +443,17 @@ const SURVEY_QUESTIONS_BY_FIELD = {
 
 // ─── AI CHAT BOT ────────────────────────────────────────────────────────────
 
+import React, { useState, useRef } from "react";
 
+export default function App() {
+  return <ChatBot />;
+}
 
-function App() {
-
-  const messages = [
-    { role: "user", content: "Hello" }
-  ];
+function ChatBot() {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const chatRef = useRef(null);
 
   const systemPrompt = "You are a helpful AI assistant";
 
@@ -469,19 +473,52 @@ function App() {
     return data.reply;
   }
 
-  useEffect(() => {
-    askClaude(messages, systemPrompt).then(res => {
-      console.log(res);
-    });
-  }, []);
+  async function send() {
+    if (!input.trim() || loading) return;
+
+    const userMsg = { role: "user", content: input };
+    setMessages(prev => [...prev, userMsg]);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const reply = await askClaude([...messages, userMsg], systemPrompt);
+
+      setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: reply }
+      ]);
+    } catch (err) {
+      console.error(err);
+    }
+
+    setLoading(false);
+  }
 
   return (
-    <div>
-      <h1>Check console</h1>
+    <div style={{ padding: 20 }}>
+      <h2>AI Chat</h2>
+
+      <div style={{ minHeight: 200, border: "1px solid #ccc", padding: 10 }}>
+        {messages.map((m, i) => (
+          <div key={i}>
+            <b>{m.role}:</b> {m.content}
+          </div>
+        ))}
+      </div>
+
+      <input
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        placeholder="Type message..."
+      />
+
+      <button onClick={send} disabled={loading}>
+        {loading ? "..." : "Send"}
+      </button>
     </div>
   );
 }
-
 
 // ─── COMPONENTS ─────────────────────────────────────────────────────────────
 
