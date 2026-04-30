@@ -483,21 +483,6 @@ function ChatBot({ userProfile, onClose }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatRef = useRef(null);
-  // 👇 GitHub feature state
-const [githubUser, setGithubUser] = useState("");
-const [githubData, setGithubData] = 
-useState(null);
-
-// 👇 GitHub API function
-async function fetchGithub() {
-  try {
-    const res = await fetch(`https://api.github.com/users/${githubUser}`);
-    const data = await res.json();
-    setGithubData(data);
-  } catch (err) {
-    console.error(err);
-  }
-}
 
   const systemPrompt = `You are an expert AI mentor on Forge - a Smart Mentoring System. 
 Student Profile:
