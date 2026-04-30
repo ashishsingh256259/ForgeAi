@@ -578,19 +578,6 @@ Keep responses concise but highly valuable. Use bullet points when listing items
           ))}
         </div>
 
-        {/* GITHUB FEATURE */}
-<div style={{ marginTop: 20 }}>
-  <input
-    placeholder="Enter GitHub username"
-    value={githubUser}
-    onChange={(e) => setGithubUser(e.target.value)}
-  />
-
-  <button onClick={fetchGithub}>
-    Get GitHub Info
-  </button>
-</div>
-
         <div style={{ padding: "0 16px 16px", display: "flex", gap: 10 }}>
           <input
             value={input} onChange={e => setInput(e.target.value)}
