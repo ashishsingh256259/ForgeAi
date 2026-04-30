@@ -443,17 +443,35 @@ const SURVEY_QUESTIONS_BY_FIELD = {
 
 // ─── AI CHAT BOT ────────────────────────────────────────────────────────────
 
-const res = await fetch("https://forgeai-a8xi.onrender.com/api/chat", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    messages,
-    systemPrompt
-  })
-});
+import { useEffect } from "react";
 
+const messages = [
+  { role: "user", content: "Hello" }
+];
+
+const systemPrompt = "You are a helpful AI assistant";
+
+async function askClaude(messages, systemPrompt) {
+  const res = await fetch("https://forgeai-a8xi.onrender.com/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      messages,
+      systemPrompt
+    })
+  });
+
+  const data = await res.json();
+  return data.reply;
+}
+
+useEffect(() => {
+  askClaude(messages, systemPrompt).then(res => {
+    console.log(res);
+  });
+}, []);
 // ─── COMPONENTS ─────────────────────────────────────────────────────────────
 
 function TypingIndicator() {
