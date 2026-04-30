@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 // ─── DATA ──────────────────────────────────────────────────────────────────
 
@@ -445,33 +445,44 @@ const SURVEY_QUESTIONS_BY_FIELD = {
 
 
 
-const messages = [
-  { role: "user", content: "Hello" }
-];
+function App() {
 
-const systemPrompt = "You are a helpful AI assistant";
+  const messages = [
+    { role: "user", content: "Hello" }
+  ];
 
-async function askClaude(messages, systemPrompt) {
-  const res = await fetch("https://forgeai-a8xi.onrender.com/api/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      messages,
-      systemPrompt
-    })
-  });
+  const systemPrompt = "You are a helpful AI assistant";
 
-  const data = await res.json();
-  return data.reply;
+  async function askClaude(messages, systemPrompt) {
+    const res = await fetch("https://forgeai-a8xi.onrender.com/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        messages,
+        systemPrompt
+      })
+    });
+
+    const data = await res.json();
+    return data.reply;
+  }
+
+  useEffect(() => {
+    askClaude(messages, systemPrompt).then(res => {
+      console.log(res);
+    });
+  }, []);
+
+  return (
+    <div>
+      <h1>Check console</h1>
+    </div>
+  );
 }
 
-useEffect(() => {
-  askClaude(messages, systemPrompt).then(res => {
-    console.log(res);
-  });
-}, []);
+export default App;
 // ─── COMPONENTS ─────────────────────────────────────────────────────────────
 
 function TypingIndicator() {
