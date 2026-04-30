@@ -485,7 +485,8 @@ function ChatBot({ userProfile, onClose }) {
   const chatRef = useRef(null);
   // 👇 GitHub feature state
 const [githubUser, setGithubUser] = useState("");
-const [githubData, setGithubData] = useState(null);
+const [githubData, setGithubData] = 
+useState(null);
 
 // 👇 GitHub API function
 async function fetchGithub() {
@@ -576,6 +577,19 @@ Keep responses concise but highly valuable. Use bullet points when listing items
             }}>{s}</button>
           ))}
         </div>
+
+        {/* GITHUB FEATURE */}
+<div style={{ marginTop: 20 }}>
+  <input
+    placeholder="Enter GitHub username"
+    value={githubUser}
+    onChange={(e) => setGithubUser(e.target.value)}
+  />
+
+  <button onClick={fetchGithub}>
+    Get GitHub Info
+  </button>
+</div>
 
         <div style={{ padding: "0 16px 16px", display: "flex", gap: 10 }}>
           <input
@@ -944,15 +958,3 @@ export default function ForgeApp() {
     </div>
   );
 }
-{/* GITHUB FEATURE */}
-<div style={{ marginTop: 20 }}>
-  <input
-    placeholder="Enter GitHub username"
-    value={githubUser}
-    onChange={(e) => setGithubUser(e.target.value)}
-  />
-
-  <button onClick={fetchGithub}>
-    Get GitHub Info
-  </button>
-</div>
