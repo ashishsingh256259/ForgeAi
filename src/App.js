@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import GitHubViewer from "./GitHubViewer";
 
 // ─── DATA ──────────────────────────────────────────────────────────────────
 
@@ -654,6 +655,18 @@ export default function ForgeApp() {
       `}</style>
 
       {showChat && <ChatBot userProfile={userProfile} onClose={() => setShowChat(false)} />}
+
+        {step === "landing" && (
+  <div style={s.page}>
+
+    {/* existing content (FORGE, tagline, etc.) */}
+
+    <div style={{ marginTop: 40 }}>
+      <GitHubViewer />
+    </div>
+
+  </div>
+)}
 
       {/* ── LANDING ── */}
       {step === "landing" && (
