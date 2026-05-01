@@ -25,17 +25,29 @@ app.post("/api/chat", async (req, res) => {
 
     const userMessage = req.body?.messages?.[0]?.content || "Hello";
 
+    // 👇 SHORT vs LONG logic
+const isShort = userMessage.length < 10;
+
+const systemPrompt = isShort
+  ? "Reply in 1 short line only (max 10 words)"
+  : `You are an AI assistant.
+
+RULES:
+- Keep responses SHORT
+- Maximum 1–2 lines only
+- Do NOT give long explanations unless asked`;
+
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
       {
         model: "claude-sonnet-4-6",
-        max_tokens: 500,
-        messages: [
-          {
-            role: "user",
-            content: userMessage
-          }
-        ]
+        max_tokens: 250,
+       messages: [
+  {
+    role: "user",
+    content: systemPrompt + "\n\nUser: " + userMessage
+  }
+]
       },
       {
         headers: {
