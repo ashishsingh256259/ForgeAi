@@ -24,12 +24,7 @@ app.post("/api/chat", async (req, res) => {
     console.log("BODY:", req.body);
 
     const userMessage = req.body?.messages?.[0]?.content || "Hello";
-    const isShort = input.length < 2;
-
-const systemPrompt = isShort
-  ? "Reply in 1 short line only"
-  : "Give detailed but concise answer";
-
+    
 
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
