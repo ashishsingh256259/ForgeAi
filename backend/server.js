@@ -42,7 +42,7 @@ const systemPrompt = isShort
     content: userMessage
   }
 ]
-      }
+      },
       {
         headers: {
           "Content-Type": "application/json",
