@@ -24,7 +24,11 @@ app.post("/api/chat", async (req, res) => {
     console.log("BODY:", req.body);
 
     const userMessage = req.body?.messages?.[0]?.content || "Hello";
+    const isShort = input.length < 10;
 
+const systemPrompt = isShort
+  ? "Reply in 1 short line only"
+  : "Give detailed but concise answer";
 
 
     const response = await axios.post(
@@ -32,13 +36,13 @@ app.post("/api/chat", async (req, res) => {
       {
         model: "claude-sonnet-4-6",
         max_tokens: 300,
-       messages: [
+        messages: [
   {
     role: "user",
-    content: systemPrompt + "\n\nUser: " + userMessage
+    content: userMessage
   }
 ]
-      },
+      }
       {
         headers: {
           "Content-Type": "application/json",
