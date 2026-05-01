@@ -445,7 +445,7 @@ const SURVEY_QUESTIONS_BY_FIELD = {
 // ─── AI CHAT BOT ────────────────────────────────────────────────────────────
 
 
-async function askClaude(messages, systemPrompt) {
+async function askClaude(messages, systemPrompt, userProfile) {
   const res = await fetch("https://forgeai-a8xi.onrender.com/api/chat", {
     method: "POST",
     headers: {
@@ -453,7 +453,8 @@ async function askClaude(messages, systemPrompt) {
     },
     body: JSON.stringify({
       messages,
-      systemPrompt
+      systemPrompt,
+      userProfile
     })
   });
 
@@ -506,7 +507,7 @@ Keep responses concise but highly valuable. Use bullet points when listing items
     setInput("");
     setLoading(true);
     const history = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
-    const reply = await askClaude(history, systemPrompt);
+    const reply = await askClaude(history, systemPrompt, userProfile);
     setMessages(m => [...m, { role: "assistant", content: reply }]);
     setLoading(false);
   }

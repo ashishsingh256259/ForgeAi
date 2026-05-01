@@ -1,3 +1,5 @@
+
+
 process.on("uncaughtException", (err) => {
   console.log("ERROR:", err);
 });
@@ -24,7 +26,7 @@ app.post("/api/chat", async (req, res) => {
     console.log("BODY:", req.body);
 
     const userMessage = req.body?.messages?.[0]?.content || "Hello";
-    
+    const userProfile = req.body?.userProfile || {};
 
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
@@ -34,7 +36,15 @@ app.post("/api/chat", async (req, res) => {
         messages: [
   {
     role: "user",
-    content: userMessage
+    content: `
+User Profile:
+Name: ${userProfile.name}
+Field: ${userProfile.field}
+Career: ${userProfile.career}
+
+User Question:
+${userMessage}
+`
   }
 ]
       },
