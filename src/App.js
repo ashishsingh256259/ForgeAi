@@ -5,7 +5,7 @@ import GitHubViewer from "./GitHubViewer";
 
 const FIELDS = [
   { id: "tech", label: "Technology & Engineering", icon: "⚙️", color: "#00F5FF" },
-  { id: "design", label: "Design & Creative", icon: "🎨", color: "#FF6B9D" },
+  { id: "design", label: "Design & Creativity", icon: "🎨", color: "#FF6B9D" },
   { id: "business", label: "Business & Management", icon: "📊", color: "#FFD93D" },
   { id: "law", label: "Law & Legal Studies", icon: "⚖️", color: "#A8FF78" },
   { id: "healthcare", label: "Healthcare & Medicine", icon: "🏥", color: "#FF9A3C" },
