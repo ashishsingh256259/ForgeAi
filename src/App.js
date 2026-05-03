@@ -1,6 +1,6 @@
 -import React, { useState, useEffect, useRef } from "react";
 import GitHubViewer from "./GitHubViewer";
-
+import PageTaskTracker from "./components/PageTaskTracker";
 // ─── DATA ──────────────────────────────────────────────────────────────────
 
 const FIELDS = [
@@ -665,6 +665,8 @@ export default function ForgeApp() {
     <div style={{ marginTop: 40 }}>
       <GitHubViewer />
     </div>
+    
+    import PageTaskTracker from "./components/PageTaskTracker";
 
   </div>
 )}
