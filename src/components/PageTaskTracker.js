@@ -1,14 +1,20 @@
 // ── TASK TRACKER ──────────────────────────────────────────────────────────────
 function PageTaskTracker({ user, roleData }) {
-  const today = new Date().toLocaleDateString("en-IN",{ weekday:"long",day:"numeric",month:"long" });
-  const defaultTasks = [
-    ...(roleData.roadmap[0]?.items||[]).slice(0,4).map((item,i)=>({ id:`r${i}`,text:item,category:"📘 Learning",done:i<1 })),
-    { id:"t1",text:"Review yesterday's notes for 15 mins",category:"🔁 Revision",done:false },
-    { id:"t2",text:"Solve 1 practice problem / exercise",category:"💪 Practice",done:false },
-    { id:"t3",text:"Watch 1 video / read 1 article",category:"📺 Resource",done:false },
-    { id:"t4",text:"Update your progress log",category:"📝 Admin",done:false },
-  ];
+ const defaultTasks = [
+  ...(roleData?.roadmap?.[0]?.items || [])
+    .slice(0, 4)
+    .map((item, i) => ({
+      id: `r${i}`,
+      text: item?.title || item?.category || "Learning",
+      category: "📘 Learning",
+      done: i < 1
+    })),
 
+  { id: "t1", text: "Review yesterday for 15 mins", category: "📘 Revision", done: false },
+  { id: "t2", text: "Solve 1 practice problem / exercise", category: "💪 Practice", done: false },
+  { id: "t3", text: "Watch 1 video / read 1 article", category: "📚 Resource", done: false },
+  { id: "t4", text: "Update your progress log", category: "🧾 Admin", done: false },
+];
   const [tasks,setTasks] = useState(defaultTasks);
   const [newTask,setNewTask] = useState("");
   const [newCat,setNewCat] = useState("📘 Learning");
