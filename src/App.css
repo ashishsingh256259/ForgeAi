@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+
+/* ---- NEW CODE TO MAKE LOGO FIXED ---- */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: #282c34; /* your theme color */
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.page-content {
+  margin-top: 80px;
+}
