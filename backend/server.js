@@ -45,7 +45,7 @@ app.post("/api/chat", async (req, res) => {
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
       {
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-6",
         max_tokens: 400,
         system: req.body?.systemPrompt || "You are an AI mentor.",
         messages: messages
@@ -89,7 +89,7 @@ app.post("/api/user", async (req, res) => {
   try {
     const { name, educationLevel, field, career, surveyAnswers } = req.body;
     let user = await User.findOne({ name });
-    
+
     if (user) {
       user.educationLevel = educationLevel;
       user.field = field;
@@ -121,10 +121,10 @@ app.post("/api/tasks/:username", async (req, res) => {
   try {
     const { username } = req.params;
     const { tasks } = req.body; // Array of task objects
-    
+
     // Clear old tasks and save new ones
     await Task.deleteMany({ username });
-    
+
     const tasksToSave = tasks.map(t => ({
       username,
       id: t.id,
@@ -132,7 +132,7 @@ app.post("/api/tasks/:username", async (req, res) => {
       category: t.category,
       done: t.done
     }));
-    
+
     await Task.insertMany(tasksToSave);
     res.json({ success: true, message: "Tasks saved successfully" });
   } catch (err) {
