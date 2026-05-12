@@ -641,6 +641,27 @@ export default function ForgeApp() {
   const [activeTab, setActiveTab] = useState("roadmap");
   const [animIn, setAnimIn] = useState(true);
 
+  // Auto-load session
+  useEffect(() => {
+    const localProfile = localStorage.getItem("forge_profile");
+    if (localProfile) {
+      try {
+        const data = JSON.parse(localProfile);
+        if (data && data.name) {
+          setName(data.name);
+          setEducationLevel(data.educationLevel || "");
+          const matchedField = FIELDS.find(f => f.id === data.field);
+          setSelectedField(matchedField || null);
+          setSelectedCareer(data.career || null);
+          setSurveyAnswers(data.surveyAnswers || []);
+          setStep("dashboard"); // Skip directly
+        }
+      } catch (err) {
+        console.error("Local storage parse error", err);
+      }
+    }
+  }, []);
+
   function transition(nextStep) {
     setAnimIn(false);
     setTimeout(() => { setStep(nextStep); setAnimIn(true); }, 300);
@@ -659,6 +680,8 @@ export default function ForgeApp() {
 
   const saveUserProfile = async (profileData) => {
     try {
+      localStorage.setItem("forge_profile", JSON.stringify(profileData));
+      
       const apiUrl = process.env.NODE_ENV === 'development' 
         ? "http://localhost:5000/api/user" 
         : "https://forgeai-a8xi.onrender.com/api/user";
@@ -704,6 +727,7 @@ export default function ForgeApp() {
       if (res.ok) {
         const data = await res.json();
         if (data && data.name) {
+          localStorage.setItem("forge_profile", JSON.stringify(data));
           setEducationLevel(data.educationLevel || "");
           const matchedField = FIELDS.find(f => f.id === data.field);
           setSelectedField(matchedField || null);
