@@ -444,11 +444,16 @@ const SURVEY_QUESTIONS_BY_FIELD = {
 
 
 async function askClaude(messages, systemPrompt, userProfile) {
-  const res = await fetch("https://forgeai-a8xi.onrender.com/api/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+  try {
+    const apiUrl = process.env.NODE_ENV === 'development' 
+      ? "http://localhost:5000/api/chat" 
+      : "https://forgeai-a8xi.onrender.com/api/chat";
+
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
     body: JSON.stringify({
       messages,
       systemPrompt,
@@ -456,8 +461,16 @@ async function askClaude(messages, systemPrompt, userProfile) {
     })
   });
 
-  const data = await res.json();
-  return data.reply;
+    if (!res.ok) {
+      throw new Error(`API returned status ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.reply || "I'm having trouble connecting right now. Please try again later.";
+  } catch (error) {
+    console.error("Chatbot API Error:", error);
+    return "⚠️ Sorry, I cannot reach the server right now. Please make sure the backend is running.";
+  }
 }
 // ─── COMPONENTS ─────────────────────────────────────────────────────────────
 
