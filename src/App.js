@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import PageTaskTracker from "./components/PageTaskTracker";
 // ─── DATA ──────────────────────────────────────────────────────────────────
 
 const FIELDS = [
@@ -462,7 +463,12 @@ async function askClaude(messages, systemPrompt, userProfile) {
   });
 
     if (!res.ok) {
-      throw new Error(`API returned status ${res.status}`);
+      const errorData = await res.json();
+      console.error("Backend returned error:", errorData);
+      if (errorData?.details?.error?.type === "not_found_error") {
+        return "⚠️ Your Anthropic API Key is valid but doesn't have access to this model or has no credits left. Please add credits to your Anthropic account or use a different key.";
+      }
+      return `⚠️ API Error: ${errorData?.details?.error?.message || errorData?.error || "Unknown error"}`;
     }
 
     const data = await res.json();
@@ -488,7 +494,7 @@ function TypingIndicator() {
   );
 }
 
-function ChatBot({ userProfile, onClose }) {
+function ChatBot({ userProfile, careerData, onClose }) {
   const [messages, setMessages] = useState([{
     role: "assistant",
     content: `Hi ${userProfile.name}! 👋 I'm your AI mentor on Forge. I know your profile — you're interested in **${FIELDS.find(f => f.id === userProfile.field)?.label}**, aiming to become a **${userProfile.career}**. Ask me anything — skill gaps, next steps, course suggestions, resume tips, or placement advice!`
@@ -505,13 +511,18 @@ STUDENT PROFILE:
 - Field: ${FIELDS.find(f => f.id === userProfile.field)?.label}
 - Target Career: ${userProfile.career}
 - Education Level: ${userProfile.educationLevel}
-- Survey Answers (very important): ${JSON.stringify(userProfile.surveyAnswers)}
+- Survey Answers: ${JSON.stringify(userProfile.surveyAnswers)}
+
+TARGET CAREER DATA (Their active roadmap):
+- Skills to Learn: ${JSON.stringify(careerData?.skills || [])}
+- Roadmap Steps: ${JSON.stringify(careerData?.roadmap || [])}
 
 INSTRUCTIONS:
 1. EXTREME PERSONALIZATION: In your answers, use the user's name naturally and directly reference their specific education level, survey answers, and chosen career. Talk to them like a real mentor who knows their exact background.
-2. LIMIT GREETINGS/SHORT INPUTS: If the user just says "hi", "hello", "hlo", "how are you", or something very short with no actual task, REPLY WITH EXACTLY 1 LINE. Do NOT write 100 words. Acknowledge them, mention their goal, and wait for their question.
-3. ELABORATE ONLY ON TASKS: When the user asks a real question (like asking for a roadmap, resume tips, or how to learn a skill), then and ONLY then provide a detailed, data-backed answer using bullet points. Still, keep it concise but highly valuable.
-4. TONE: Professional, encouraging, and direct.`;
+2. RECOMMENDATIONS: When giving advice, strictly align it with their "TARGET CAREER DATA" (the skills and roadmap steps listed above). Don't give generic advice, refer directly to their current Forge roadmap.
+3. LIMIT GREETINGS/SHORT INPUTS: If the user just says "hi", "hello", "hlo", "how are you", or something very short with no actual task, REPLY WITH EXACTLY 1 LINE. Do NOT write 100 words. Acknowledge them, mention their goal, and wait for their question.
+4. ELABORATE ONLY ON TASKS: When the user asks a real question (like asking for a roadmap, resume tips, or how to learn a skill), provide a detailed, data-backed answer using bullet points. Still, keep it concise but highly valuable.
+5. TONE: Professional, encouraging, and direct.`;
 
   useEffect(() => { chatRef.current?.scrollTo(0, chatRef.current.scrollHeight); }, [messages]);
 
@@ -646,12 +657,66 @@ export default function ForgeApp() {
     }
   }
 
+  const saveUserProfile = async (profileData) => {
+    try {
+      const apiUrl = process.env.NODE_ENV === 'development' 
+        ? "http://localhost:5000/api/user" 
+        : "https://forgeai-a8xi.onrender.com/api/user";
+      
+      await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData)
+      });
+    } catch (err) {
+      console.error("Failed to save profile:", err);
+    }
+  };
+
+  const handleGoToDashboard = () => {
+    const profileData = {
+      name,
+      educationLevel,
+      field: selectedField?.id,
+      career: selectedCareer,
+      surveyAnswers
+    };
+    saveUserProfile(profileData);
+    transition("dashboard");
+  };
+
   const fieldData = selectedField ? ROADMAPS[selectedField.id] : null;
   const careerData = selectedCareer && fieldData ? (fieldData.subfields[selectedCareer] || Object.values(fieldData.subfields)[0]) : null;
 
   const userProfile = {
     name, educationLevel, field: selectedField?.id,
     career: selectedCareer, surveyAnswers
+  };
+
+  const checkAndLoadUser = async () => {
+    if (!name.trim()) return;
+    try {
+      const apiUrl = process.env.NODE_ENV === 'development' 
+        ? `http://localhost:5000/api/user/${name.trim()}` 
+        : `https://forgeai-a8xi.onrender.com/api/user/${name.trim()}`;
+      
+      const res = await fetch(apiUrl);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.name) {
+          setEducationLevel(data.educationLevel || "");
+          const matchedField = FIELDS.find(f => f.id === data.field);
+          setSelectedField(matchedField || null);
+          setSelectedCareer(data.career || null);
+          setSurveyAnswers(data.surveyAnswers || []);
+          transition("dashboard");
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to check user:", err);
+    }
+    transition("education");
   };
 
   // ─── STYLES ───────────────────────────────────────────────────────────────
@@ -684,7 +749,7 @@ export default function ForgeApp() {
         .field-card:hover { transform: translateY(-3px); }
       `}</style>
 
-      {showChat && <ChatBot userProfile={userProfile} onClose={() => setShowChat(false)} />}
+      {showChat && <ChatBot userProfile={userProfile} careerData={careerData} onClose={() => setShowChat(false)} />}
 
 
 
@@ -718,10 +783,10 @@ export default function ForgeApp() {
             <h2 style={s.h2}>What's your name?</h2>
             <p style={s.sub}>Let's make this personal.</p>
             <input style={s.input} value={name} onChange={e => setName(e.target.value)}
-              placeholder="Enter your name..." onKeyDown={e => e.key === "Enter" && name.trim() && transition("education")} autoFocus />
+              placeholder="Enter your name..." onKeyDown={e => e.key === "Enter" && name.trim() && checkAndLoadUser()} autoFocus />
             <br /><br />
             <button style={{ ...s.btn, opacity: name.trim() ? 1 : 0.4 }}
-              disabled={!name.trim()} onClick={() => transition("education")}>
+              disabled={!name.trim()} onClick={checkAndLoadUser}>
               Continue →
             </button>
           </div>
@@ -813,7 +878,7 @@ export default function ForgeApp() {
               ))}
             </div>
             <button style={{ ...s.btn, opacity: selectedCareer ? 1 : 0.4 }}
-              disabled={!selectedCareer} onClick={() => transition("dashboard")}>
+              disabled={!selectedCareer} onClick={handleGoToDashboard}>
               View My Roadmap →
             </button>
           </div>
@@ -853,8 +918,8 @@ export default function ForgeApp() {
             </div>
 
             {/* Tabs */}
-            <div style={{ display: "flex", gap: 4, marginBottom: 24, background: "rgba(255,255,255,0.03)", padding: 4, borderRadius: 12, width: "fit-content" }}>
-              {[["roadmap", "🗺️ Roadmap"], ["courses", "📚 Courses"], ["skills", "⚡ Skills"], ["resume", "📝 Resume & Placement"]].map(([id, label]) => (
+            <div style={{ display: "flex", gap: 4, marginBottom: 24, background: "rgba(255,255,255,0.03)", padding: 4, borderRadius: 12, width: "fit-content", overflowX: "auto" }}>
+              {[["roadmap", "🗺️ Roadmap"], ["courses", "📚 Courses"], ["skills", "⚡ Skills"], ["resume", "📝 Resume & Placement"], ["tracker", "✅ Task Tracker"]].map(([id, label]) => (
                 <button key={id} onClick={() => setActiveTab(id)}
                   style={{ padding: "10px 18px", borderRadius: 10, border: "none", background: activeTab === id ? "rgba(0,245,255,0.15)" : "transparent", color: activeTab === id ? "#00F5FF" : "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: 13, fontWeight: activeTab === id ? 700 : 400, fontFamily: "inherit", transition: "all 0.2s", whiteSpace: "nowrap" }}>
                   {label}
@@ -955,6 +1020,13 @@ export default function ForgeApp() {
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* TASK TRACKER TAB */}
+            {activeTab === "tracker" && (
+              <div style={{ animation: "fadeUp 0.4s ease" }}>
+                 <PageTaskTracker user={userProfile} roleData={careerData} />
               </div>
             )}
           </div>
