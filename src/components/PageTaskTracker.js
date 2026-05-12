@@ -25,13 +25,11 @@ export default function PageTaskTracker({ user, roleData }) {
   const [goal,setGoal] = useState("Complete 3 tasks today");
   const [editGoal,setEditGoal] = useState(false);
   const [goalInput,setGoalInput] = useState(goal);
-  const [loadingTasks, setLoadingTasks] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
 
   useEffect(() => {
     async function loadTasks() {
       if (!user?.name) {
-        setLoadingTasks(false);
         setFirstLoad(false);
         return;
       }
@@ -46,7 +44,6 @@ export default function PageTaskTracker({ user, roleData }) {
       } catch (err) {
         console.error("Failed to load tasks", err);
       } finally {
-        setLoadingTasks(false);
         setFirstLoad(false);
       }
     }
