@@ -45,7 +45,7 @@ app.post("/api/chat", async (req, res) => {
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
       {
-        model: "claude-sonnet-4-6",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 400,
         system: req.body?.systemPrompt || "You are an AI mentor.",
         messages: messages

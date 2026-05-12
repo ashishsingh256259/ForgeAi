@@ -668,11 +668,15 @@ export default function ForgeApp() {
   }
 
   function handleSurveyAnswer(ans) {
+    if (!selectedField) return; // safeguard
+    const questions = SURVEY_QUESTIONS_BY_FIELD[selectedField.id] || [];
+    if (currentQ >= questions.length) return; // already done
+
     const updated = [...surveyAnswers, ans];
     setSurveyAnswers(updated);
-    const questions = SURVEY_QUESTIONS_BY_FIELD[selectedField.id] || [];
+    
     if (currentQ + 1 < questions.length) {
-      setCurrentQ(c => c + 1);
+      setTimeout(() => setCurrentQ(currentQ + 1), 50); // slight delay to prevent double-click race conditions and ensure UI updates smoothly
     } else {
       transition("career");
     }
