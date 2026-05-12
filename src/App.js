@@ -503,6 +503,11 @@ INSTRUCTIONS:
   useEffect(() => { chatRef.current?.scrollTo(0, chatRef.current.scrollHeight); }, [messages]);
 
   async function send() {
+    const userMsgCount = messages.filter(m => m.role === "user").length;
+    if (userMsgCount >= 5) {
+      setMessages(m => [...m, { role: "assistant", content: "⚠️ You have reached your limit of 5 messages for this session. Please try again later or upgrade your plan." }]);
+      return;
+    }
     if (!input.trim() || loading) return;
     const userMsg = { role: "user", content: input };
     setMessages(m => [...m, userMsg]);
@@ -568,21 +573,30 @@ INSTRUCTIONS:
         </div>
 
         <div style={{ padding: "0 16px 16px", display: "flex", gap: 10 }}>
-          <input
-            value={input} onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && send()}
-            placeholder="Ask your AI mentor anything..."
-            style={{
-              flex: 1, padding: "12px 16px", borderRadius: 12,
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-              color: "#fff", fontSize: 14, outline: "none"
-            }}
-          />
-          <button onClick={send} style={{
-            padding: "12px 20px", borderRadius: 12,
-            background: "linear-gradient(135deg,#00F5FF,#7C3AED)",
-            border: "none", color: "#000", fontWeight: 700, cursor: "pointer", fontSize: 14
-          }}>Send</button>
+          {messages.filter(m => m.role === "user").length >= 5 ? (
+            <div style={{ flex: 1, padding: "12px", textAlign: "center", color: "#FF6B6B", background: "rgba(255,107,107,0.1)", borderRadius: 12, border: "1px solid rgba(255,107,107,0.2)" }}>
+              Message limit reached (5/5)
+            </div>
+          ) : (
+            <>
+              <input
+                value={input} onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && send()}
+                placeholder="Ask your AI mentor anything..."
+                disabled={loading}
+                style={{
+                  flex: 1, padding: "12px 16px", borderRadius: 12,
+                  background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
+                  color: "#fff", fontSize: 14, outline: "none"
+                }}
+              />
+              <button onClick={send} disabled={loading} style={{
+                padding: "12px 20px", borderRadius: 12,
+                background: loading ? "gray" : "linear-gradient(135deg,#00F5FF,#7C3AED)",
+                border: "none", color: "#000", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", fontSize: 14
+              }}>Send</button>
+            </>
+          )}
         </div>
       </div>
     </div>
