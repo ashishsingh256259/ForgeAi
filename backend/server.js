@@ -31,28 +31,22 @@ app.post("/api/chat", async (req, res) => {
   try {
     console.log("BODY:", req.body);
 
-    const userMessage = req.body?.messages?.[0]?.content || "Hello";
-    const userProfile = req.body?.userProfile || {};
+    let messages = req.body?.messages || [];
+    // Anthropic requires messages to start with 'user'
+    if (messages.length > 0 && messages[0].role === "assistant") {
+      messages = messages.slice(1);
+    }
+    if (messages.length === 0) {
+      messages = [{ role: "user", content: "Hello" }];
+    }
 
     const response = await axios.post(
       "https://api.anthropic.com/v1/messages",
       {
         model: "claude-3-5-sonnet-20241022",
-        max_tokens: 300,
-        messages: [
-  {
-    role: "user",
-    content: `
-User Profile:
-Name: ${userProfile.name}
-Field: ${userProfile.field}
-Career: ${userProfile.career}
-
-User Question:
-${userMessage}
-`
-  }
-]
+        max_tokens: 400,
+        system: req.body?.systemPrompt || "You are an AI mentor.",
+        messages: messages
       },
       {
         headers: {
