@@ -1,6 +1,4 @@
--import React, { useState, useEffect, useRef } from "react";
-import GitHubViewer from "./GitHubViewer";
-import PageTaskTracker from "./components/PageTaskTracker";
+import React, { useState, useEffect, useRef } from "react";
 // ─── DATA ──────────────────────────────────────────────────────────────────
 
 const FIELDS = [
@@ -657,19 +655,7 @@ export default function ForgeApp() {
 
       {showChat && <ChatBot userProfile={userProfile} onClose={() => setShowChat(false)} />}
 
-        {step === "landing" && (
-  <div style={s.page}>
 
-    {/* existing content (FORGE, tagline, etc.) */}
-
-    <div style={{ marginTop: 40 }}>
-      <GitHubViewer />
-    </div>
-    
-    import PageTaskTracker from "./components/PageTaskTracker";
-
-  </div>
-)}
 
       {/* ── LANDING ── */}
       {step === "landing" && (
